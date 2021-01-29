@@ -37,7 +37,10 @@ sc_genes.csv | *P. berghei* scRNAseq data, averaged for every lifecycle stage (a
 sc_dotplot_order.csv | *P. berghei* scRNAseq data in dot plot file format 
 Kaessmann_genes2.csv | *H. sapiens* bulkRNAseq data from Cardoso *et al.*, averaged for every developmental stage 
 UMAP_sc.csv | UMAP coordinates *P. berghei* scRNAseq data
-Helper.csv | annotation file *P. berghei* scRNAseq data
 
 ### Uploadfile formats
+Data | Format | Plotting options
+--- | ---  | --- 
+TPM counts (averaged sc, bulk seq) | Developmental stages as columns, genes as rows (see example file 1)  | Bar chart, Table
+TMM Sc matrix  | Cell number as first row, cell identities as second row, genes as rows (see example file 2) | Dot Plots
 
