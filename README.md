@@ -1,3 +1,26 @@
+### Workflow
+![](Files/Figure1.PNG)
+
+
+### Files
+
+File | Use
+--- | ---
+ui.R | user interface (UI)
+server.R | server code
+helper_module.R | shiny modules and functions for UI and server
+sc_P_berghei_counts.csv | *P. berghei* scRNAseq data from Howick *et al.* link XXX
+sc_P_berghei_averaged.csv | *P. berghei* scRNAseq data, averaged for every lifecycle stage (annotation shortenedLifestage4 from Howick *et al.* 2019 link XXX)
+sc_P_berghei_dotplot.csv | *P. berghei* scRNAseq data in dot plot file format 
+sc_P_berghei_UMAP.csv | UMAP coordinates *P. berghei* scRNAseq data
+bulk_H_sapiens_averaged.csv | *H. sapiens* bulkRNAseq data from Cardoso *et al.*, averaged for every developmental stage 
+
+
+### Uploadfile formats
+
+Files for upload should have entities as first row and a gene identifier as first column (see below and Example file). Counts should be in TPM normalization.
+![](Files/Figure2.PNG)
+
 ### Requirements
 
 All code was excecuted with R 4.0.3. Package requirements are listed below:
@@ -25,22 +48,5 @@ Sortable	| 0.4.4
 Stringr	| 1.4.0
 Tidyr	| 1.3.0
 
-### Files
 
-File | Use
---- | ---
-ui.R | user interface (UI)
-server.R | server code
-helper_module.R | shiny modules and functions for UI and server
-Sc_counts_s.csv | *P. berghei* scRNAseq data from Howick *et al.* link XXX
-sc_genes.csv | *P. berghei* scRNAseq data, averaged for every lifecycle stage (annotation shortenedLifestage4 from Howick *et al.* 2019 link XXX)
-sc_dotplot_order.csv | *P. berghei* scRNAseq data in dot plot file format 
-Kaessmann_genes2.csv | *H. sapiens* bulkRNAseq data from Cardoso *et al.*, averaged for every developmental stage 
-UMAP_sc.csv | UMAP coordinates *P. berghei* scRNAseq data
-
-### Uploadfile formats
-Data | Format | Plotting options
---- | ---  | --- 
-TPM counts (averaged sc, bulk seq) | Developmental stages as columns, genes as rows (see example file 1)  | Bar chart, Table
-TMM Sc matrix  | Cell number as first row, cell identities as second row, genes as rows (see example file 2) | Dot Plots
 
