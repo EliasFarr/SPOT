@@ -1,5 +1,5 @@
 ### Workflow
-![](Files/Figure1.PNG)
+![](Figures/Figure1.PNG)
 
 
 ### Files
@@ -19,7 +19,7 @@ bulk_H_sapiens_averaged.csv | *H. sapiens* bulkRNAseq data from Cardoso *et al.*
 ### Uploadfile formats
 
 Files for upload should have entities as first row and a gene identifier as first column (see below and Example file). Counts should be in TPM normalization.
-![](Files/Figure2.PNG)
+![](Figures/Figure2.PNG)
 
 ### Requirements
 
