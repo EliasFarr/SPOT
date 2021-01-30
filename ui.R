@@ -1,4 +1,3 @@
-
 library(rsconnect)
 library(DT)
 library(shiny)
@@ -8,30 +7,28 @@ library(plotly)
 library(openxlsx)
 library(rlist)
 library(shinyEffects)
-#library(shinyChakraSlider)
 library(shinycssloaders)
 library(scales)
 library(tidyr)
 library(plyr)
 library(EnvStats)
 library(stringr)
-library(Seurat)
 library(sortable)
 library(shinybusy)
 library(reshape2)
-#library(limma)
-#library(DESeq2)
-#library(MAST)
 
+options(repos = BiocManager::repositories())
+#r <- getOption("repos")
+#r["CRAN"] <- "https://cran.rstudio.com"
+#r["ghrr"] <- "https://ghrr.github.io/drat"
+#r["BioC"] <- "https://bioconductor.org"
+#options(repos = r)
 
-params <- list(main_path          = "data",
-               allsc_genes        = "sc_genes.csv",
-               allk_genes         = "Kaessmann_merge2.csv",
+params <- list(allsc_genes        = "sc_genes.csv",
+               allk_genes         = "Kaessmann_merge3.csv",
                dotplot_genes      = "sc_dotplot_order.csv",
-               correlation        = "Cor_hm.csv",
                UMAP               = "UMAP_sc.csv",
-               Counts             = "Sc_counts_s.csv",
-               Anno               = "Helper.csv"
+               Counts             = "Sc_counts_s.csv"
 )
 
 source("helper_module.R")
@@ -42,14 +39,9 @@ human_genes <- read.csv2(params$allk_genes, stringsAsFactors = FALSE)
 
 sc_dot_plot <- read.csv2(params$dotplot_genes, stringsAsFactors = FALSE)
 
-cor_hm <- read.csv2(params$correlation, stringsAsFactors = FALSE)
-
 UMAP_sc <- read.csv2(params$UMAP, stringsAsFactors = FALSE)
 
 Sc_counts <- as.matrix(read.csv2(params$Counts, sep = ";", stringsAsFactors = FALSE))
-
-Annotation <- read.csv2(params$Anno, stringsAsFactors = FALSE )
-
 
 ################################################################################
 ##                                   UI                                       ##
@@ -161,7 +153,7 @@ ui <- navbarPage(
                       
                       conditionalPanel(
                         condition = "input.dataSwitch2 == 'Plasmodium (single cell)' ",
-                        selectInput("spec_gene2", "Pick genes to visualize:", choices = sc_genes$PB_ID, NULL, multiple = TRUE),
+                        selectInput("spec_gene2", "Pick genes to visualize:", choices = c("a", "b"), NULL, multiple = TRUE), #sc_genes$PB_ID
                       ),
                       
                       radioGroupButtons(

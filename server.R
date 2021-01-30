@@ -1,35 +1,9 @@
-library(rsconnect)
-library(DT)
-library(shiny)
-library(shinyWidgets)
-library(matrixStats)
-library(plotly)
-library(openxlsx)
-library(rlist)
-library(shinyEffects)
-library(shinycssloaders)
-library(scales)
-library(tidyr)
-library(plyr)
-library(EnvStats)
-library(stringr)
-library(Seurat)
-library(sortable)
-library(shinybusy)
-library(reshape2)
-library(limma)
-library(DESeq2)
-library(MAST)
 
-
-params <- list(main_path          = "data",
-               allsc_genes        = "sc_genes.csv",
-               allk_genes         = "Kaessmann_merge2.csv",
-               dotplot_genes      = "sc_dotplot_order.csv",
-               correlation        = "Cor_hm.csv",
-               UMAP               = "UMAP_sc.csv",
-               Counts             = "Sc_counts_s.csv",
-               Anno               = "Helper.csv"
+params <- list(allsc_genes        = "~/Github/SPOT/sc_P_berghei_averaged.csv",
+               allk_genes         = "~/Github/SPOT/bulk_H_sapiens_averaged.csv",
+               dotplot_genes      = "~/Github/SPOT/sc_P_berghei_dotplot.csv",
+               UMAP               = "~/Github/SPOT/sc_P_berghei_UMAP.csv",
+               Counts             = "~/Github/SPOT/sc_P_berghei_counts.csv"
 )
 
 source("helper_module.R")
@@ -43,9 +17,6 @@ sc_dot_plot <- read.csv2(params$dotplot_genes, stringsAsFactors = FALSE)
 UMAP_sc <- read.csv2(params$UMAP, stringsAsFactors = FALSE)
 
 Sc_counts <- as.matrix(read.csv2(params$Counts, sep = ";", stringsAsFactors = FALSE))
-
-Annotation <- read.csv2(params$Anno, stringsAsFactors = FALSE )
-
 
 server <- function(input, output) {
 ################################################################################ 
@@ -110,8 +81,12 @@ server <- function(input, output) {
   observe(
     output$sliders_K <- renderUI({
 
-      gene_subset = human_genes[, c(1,2,(which(unlist(str_split(colnames(human_genes)[3:ncol(human_genes)], pattern = "_"))[seq(2, 270, 2)] %in% input$bucket_out) + 2))]
+      gene_subset = human_genes[, c(1,2,(which(unlist(str_split(colnames(human_genes)[3:ncol(human_genes)], pattern = "_"))[seq(2, 270, 3)] %in% input$bucket_out) + 2))]
       
+      organs = unlist(str_split(colnames(gene_subset)[3:ncol(gene_subset)] , "_"))[seq(1, ((ncol(gene_subset) - 2) * 3), 3 )]
+      dev_stage = unlist(str_split(colnames(gene_subset)[3:ncol(gene_subset)] , "_"))[seq(2, ((ncol(gene_subset) - 2) * 3), 3 )]
+      colnames(gene_subset)[3:ncol(gene_subset)] = paste(organs, dev_stage)
+
       slidersUI("2", colnames(gene_subset)[3:ncol(gene_subset)])
     })
     )
@@ -121,8 +96,12 @@ server <- function(input, output) {
   
     output$Component2b <- renderPlotly({
 
-      gene_subset = human_genes[, c(1,2,(which(unlist(str_split(colnames(human_genes)[3:ncol(human_genes)], pattern = "_"))[seq(2, 270, 2)] %in% input$bucket_out) + 2))]
+      gene_subset = human_genes[, c(1,2,(which(unlist(str_split(colnames(human_genes)[3:ncol(human_genes)], pattern = "_"))[seq(2, 270, 3)] %in% input$bucket_out) + 2))]
       
+      organs = unlist(str_split(colnames(gene_subset)[3:ncol(gene_subset)] , "_"))[seq(1, ((ncol(gene_subset) - 2) * 3), 3 )]
+      dev_stage = unlist(str_split(colnames(gene_subset)[3:ncol(gene_subset)] , "_"))[seq(2, ((ncol(gene_subset) - 2) * 3), 3 )]
+      colnames(gene_subset)[3:ncol(gene_subset)] = paste(organs, dev_stage)
+
       Variables = callModule(sliders_mod, "2", colnames(gene_subset)[3:ncol(gene_subset)])
       
       if(input$Algos == "SPOT" & dim(gene_subset)[2] > 2){
@@ -169,7 +148,8 @@ server <- function(input, output) {
   
   observeEvent(input$action_DEA,
                
-               {
+               { 
+                 library(Seurat)
                  
                  show_modal_progress_line() # show the modal window
                  
@@ -187,10 +167,13 @@ server <- function(input, output) {
                  SS3_plasmo <- NormalizeData(SS3_plasmo)
                  update_modal_progress(0.2) # update progress bar value
                  if(input$algorithm == "Wilcox"){
+                   library(limma)
                    Markers <- FindMarkers(SS3_plasmo, ident.1 = States[which(Variables > 0)], ident.2 = States[which(Variables == 0)], test.use = "wilcox")
                  }else if(input$algorithm == "MAST"){
+                   library(MAST)
                    Markers <- FindMarkers(SS3_plasmo, ident.1 = States[which(Variables > 0)], ident.2 = States[which(Variables == 0)], test.use = "MAST")
                  }else if(input$algorithm == "DESeq2"){
+                   library(DESeq2)
                    Markers <- FindMarkers(SS3_plasmo, ident.1 = States[which(Variables > 0)], ident.2 = States[which(Variables == 0)], test.use = "DESeq2")
                  }
                  update_modal_progress(0.9)
