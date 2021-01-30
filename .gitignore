@@ -3,3 +3,13 @@
 .Rhistory
 app_environment.RData
 rsconnect/shinyapps.io/frischknechtlab/SPOT.dcf
+SPOT.Rproj
+.Rprofile
+*.pper
+.Rproj.user/B3BFA575/rmd-outputs
+.Rproj.user/B3BFA575/saved_source_markers
+.Rproj.user/B3BFA575/sources/per/t/51702B42
+.Rproj.user/B3BFA575/sources/per/t/51702B42-contents
+.Rproj.user/B3BFA575/sources/prop/C36A973A
+.Rproj.user/B3BFA575/sources/prop/INDEX
+.Rproj.user/shared/notebooks/patch-chunk-names
