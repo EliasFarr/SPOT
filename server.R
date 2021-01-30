@@ -1,9 +1,9 @@
 
-params <- list(allsc_genes        = "~/Github/SPOT/sc_P_berghei_averaged.csv",
-               allk_genes         = "~/Github/SPOT/bulk_H_sapiens_averaged.csv",
-               dotplot_genes      = "~/Github/SPOT/sc_P_berghei_dotplot.csv",
-               UMAP               = "~/Github/SPOT/sc_P_berghei_UMAP.csv",
-               Counts             = "~/Github/SPOT/sc_P_berghei_counts.csv"
+params <- list(allsc_genes        = "Files/sc_P_berghei_averaged.csv",
+               allk_genes         = "Files/bulk_H_sapiens_averaged.csv",
+               dotplot_genes      = "Files/sc_P_berghei_dotplot.csv",
+               UMAP               = "Files/sc_P_berghei_UMAP.csv",
+               Counts             = "Files/sc_P_berghei_counts.csv"
 )
 
 source("helper_module.R")
@@ -136,7 +136,7 @@ server <- function(input, output) {
           
         }
       }else{
-        bulk_dotplot(top_df[1:10,1:(ncol(top_df)-1)])
+        bulk_dotplot(top_df[1:10,1:(ncol(top_df)-1)], ytitle = "Ensembl ID", xtitle = F)
         
       }
     })
@@ -149,10 +149,9 @@ server <- function(input, output) {
   observeEvent(input$action_DEA,
                
                { 
-                 library(Seurat)
-                 
                  show_modal_progress_line() # show the modal window
-                 
+                 library(Seurat)
+                # import::from(Seurat, CreateSeuratObject, NormalizeData, FindMarkers)
                  Variables <- callModule(sliders_mod, "5", colnames(sc_genes[3:12]))
                  States = c("Ookinete", "Oocyst", "Sporozoite", "Liver", "Merozoite", "Ring", "Trophozoite", "Schizont",
                             "Male", "Female")
@@ -167,14 +166,20 @@ server <- function(input, output) {
                  SS3_plasmo <- NormalizeData(SS3_plasmo)
                  update_modal_progress(0.2) # update progress bar value
                  if(input$algorithm == "Wilcox"){
-                   library(limma)
+                   #library(limma)
+                   import::from(limma, rankSumTestWithCorrelation)
                    Markers <- FindMarkers(SS3_plasmo, ident.1 = States[which(Variables > 0)], ident.2 = States[which(Variables == 0)], test.use = "wilcox")
+                   detach("imports")
                  }else if(input$algorithm == "MAST"){
-                   library(MAST)
+                   #library(MAST)
+                   import::from(MAST, FromMatrix, zlm)
                    Markers <- FindMarkers(SS3_plasmo, ident.1 = States[which(Variables > 0)], ident.2 = States[which(Variables == 0)], test.use = "MAST")
+                   detach("imports")
                  }else if(input$algorithm == "DESeq2"){
-                   library(DESeq2)
+                   #library(DESeq2)
+                   import::from(DESeq2, DESeqDataSetFromMatrix, estimateSizeFactors, estimateDispersions, nbinomWaldTest, results)
                    Markers <- FindMarkers(SS3_plasmo, ident.1 = States[which(Variables > 0)], ident.2 = States[which(Variables == 0)], test.use = "DESeq2")
+                   detach("imports")
                  }
                  update_modal_progress(0.9)
                  remove_modal_progress()
@@ -228,7 +233,7 @@ server <- function(input, output) {
                                                             "function(settings, json) {",
                                                             "$(this.api().table().header()).css({'background-color': '#c00000', 'color': '#fff'});",
                                                             "}")
-                                           )) %>% DT::formatStyle(1:12, color = "DimGrey"),
+                                           )) %>% DT::formatStyle(1:13, color = "DimGrey"),
                                  server = TRUE)
   observe(
     
@@ -251,7 +256,7 @@ server <- function(input, output) {
 ##                              Component 4: Upload                           ##
 ################################################################################ 
   
-  options(shiny.maxRequestSize = 31*1024^2)
+  options(shiny.maxRequestSize = 10*1024^2)
   
   observe(
     #print(colnames(inFile)), 
@@ -286,27 +291,28 @@ server <- function(input, output) {
       }else{
         inputFile <- read.csv2(inFile$datapath)
       }
-      if (input$Radio4 == "SPOT"){
-        Variables = callModule(sliders_mod, "6", colnames(inputFile))
+      
+      
+      Variables = callModule(sliders_mod, "6", colnames(inputFile))
+      output_length = 100
+      top_df <<- SPOT(inputFile, Variables, colnames(inputFile)[2:length(inputFile)], Candidate_Number = output_length, preamble = 1)
+      colnames(top_df)[1] <<- "Genes"
+      top_df[2:length(top_df)] = round(top_df[,2:length(top_df)], 2)
+      top_df_t = as.data.frame(t(top_df))
         
-        high_score(inputFile, Variables, colnames(inputFile)[2:length(inputFile)], preamble = c(1))
+      if(input$Radio5 == "Table"){
         
-        names(top_df)[1] = "Genes"
-        top_df[2:length(top_df)] = round(top_df[,2:length(top_df)], 2)
-        top_df_t = as.data.frame(t(top_df))
+        generate_table(top_df[,1:(ncol(top_df)-1)], c_orientation = c("left", "center"), h_orientation = c("left", "center"))
         
-        if(input$Radio4 == "Table"){
-          
-          generate_table(top_df[,1:(ncol(top_df)-1)], c_orientation = c("left", "center"), h_orientation = c("left", "center"))
-          
-        }else if(input$Radio4 == "Bar chart"){
-          
-          subplot_profiles(top_df, top_df_t, 1:4, profile_columns = c(3:(ncol(top_df)-1)), range_ = c(0, max(top_df[2:ncol(top_df)])), Norm = "[FPKM]", title_ = "Expression Profiles")
+      }else if(input$Radio5 == "Bar chart"){
         
-        }
-      }else if(input$Radio4 == "DEA"){
+        subplot_profiles(top_df, top_df_t, 1:4, profile_columns = c(3:(ncol(top_df)-1)), range_ = c(0, max(top_df[2:ncol(top_df)])), Norm = "[TPM]", title_ = "Expression Profiles")
+      
+      }else{
         
+        bulk_dotplot(top_df[1:10,1:(ncol(top_df)-1)])
       }
+      
     })
   )
   
@@ -320,10 +326,10 @@ server <- function(input, output) {
   )
   output$downloadData3 <- downloadHandler(
     filename = function() {
-      paste("PlasmX results ", Sys.Date(), ".xlsx", sep="")
+      paste("SPOT results ", Sys.Date(), ".xlsx", sep="")
     },
     content = function(file) {
-      write.xlsx(top_df[,1:ncol(top_df)], file)
+      write.xlsx(top_df[,1:(ncol(top_df)-1)], file)
     }
   )
   output$downloadData2 <- downloadHandler(

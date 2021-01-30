@@ -58,7 +58,7 @@ sliders_mod <- function(input, output, session, data){
 
 #plot profiles as barplot
 plot_profiles <- function(data, data1 = as.data.frame(t(data)), ID, profile_columns, color = "#c00000",
-                          grouped = FALSE, profile_columns2 = NULL, range_w = c(0,12), Norm_str = "[TMM]", title = "Top 4 profiles") {
+                          grouped = FALSE, profile_columns2 = NULL, range_w = c(0,12), Norm_str = "[TMM]", title = F) {
   
   data1$names = rownames(data1)
   data1$names <- factor(data1$names, levels = data1[["names"]])
@@ -146,7 +146,7 @@ sc_dotplot <- function(data){
 }
 
 #create unicolor boxplot 
-bulk_dotplot <- function(data){
+bulk_dotplot <- function(data, ytitle = "Genes", xtitle = "Variables"){
   data$Ensembl_ID = paste(0:9, data$Ensembl_ID)
   data = melt(data[,c(1:2, 4:ncol(data))])
   
@@ -154,10 +154,10 @@ bulk_dotplot <- function(data){
                  marker = list(size = ~(value/max(value))*20, opacity = 0.8), color = "#c00000", colors = c( "#c00000"),
                  hoverinfo = "text")
   fig <- fig %>% plotly::layout(title = 'Gene expression through the lifecycle',
-                        xaxis = list(showgrid = T ,
+                        xaxis = list(showgrid = T , title = xtitle,
                                      tickvals = list(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22),
                                      tickmode = "array"),
-                        yaxis = list(showgrid = T, type = "category",
+                        yaxis = list(showgrid = T, type = "category", title = ytitle,
                                      categoryorder = "category descending"))
   
   
@@ -188,13 +188,13 @@ SPOT <- function(data, Variables, columns = c(1:ncol(data)), preamble = c(1:2), 
       mean_unwanted_cols = rowMeans(data1[, which(Variables == 0)])
       mean_wanted_cols = rowSums(data1[, which(Variables > 0)] * Variables[which(Variables > 0)])/sum(Variables[which(Variables > 0)])
     }
-    SPOT_Score = (mean_wanted_cols - mean_unwanted_cols)*(1 - mean_unwanted_cols)
-    merged_df <- cbind(data[,preamble], SPOT_Score, data[,columns], data[,ncol(data)])
+    spot_Score = (mean_wanted_cols - mean_unwanted_cols)*(1 - mean_unwanted_cols)
+    merged_df <- cbind(data[,preamble], spot_Score, data[,columns], data[,ncol(data)])
     merged_df = subset(merged_df, (mean_wanted_cols - mean_unwanted_cols) > 0)
-    merged_df_sorted <- merged_df %>% dplyr::arrange(desc(SPOT_Score))
+    merged_df_sorted <- merged_df %>% dplyr::arrange(desc(spot_Score))
     if(length(which(Variables > 0)) > 0){
-      #print(paste("SPOT_UC, Mean:", mean(as.matrix(merged_df_sorted[1:10, (which(Variables == 0) + 3)])), ", Standard deviation: ", sd(as.matrix(merged_df_sorted[1:10, (which(Variables == 0) + 3)]))))
-      #print(paste(" SPOT_SC, Mean: ",mean(as.matrix(merged_df_sorted[1:10, (which(Variables > 0) + 3)])), ", Standard deviation: ", sd(as.matrix(merged_df_sorted[1:10, (which(Variables > 0) + 3)]))))
+      #print(paste("spot_UC, Mean:", mean(as.matrix(merged_df_sorted[1:10, (which(Variables == 0) + 3)])), ", Standard deviation: ", sd(as.matrix(merged_df_sorted[1:10, (which(Variables == 0) + 3)]))))
+      #print(paste(" spot_SC, Mean: ",mean(as.matrix(merged_df_sorted[1:10, (which(Variables > 0) + 3)])), ", Standard deviation: ", sd(as.matrix(merged_df_sorted[1:10, (which(Variables > 0) + 3)]))))
     }
     top_df <- merged_df_sorted[1:Candidate_Number,]
 }
@@ -208,8 +208,8 @@ correlation <- function(data, Variables, columns = c(1:ncol(data)), preamble = c
   merged_df <- cbind(data[,preamble], Correlation, data[,columns], data[,ncol(data)])
   merged_df_sorted <- merged_df %>% dplyr::arrange(desc(Correlation))
   if(length(which(Variables > 0)) > 0){
-    #print(paste("SPOT_UC, Mean:", mean(as.matrix(merged_df_sorted[1:10, (which(Variables == 0) + 3)])), ", Standard deviation: ", sd(as.matrix(merged_df_sorted[1:10, (which(Variables == 0) + 3)]))))
-    #print(paste(" SPOT_SC, Mean: ",mean(as.matrix(merged_df_sorted[1:10, (which(Variables > 0) + 3)])), ", Standard deviation: ", sd(as.matrix(merged_df_sorted[1:10, (which(Variables > 0) + 3)]))))
+    #print(paste("spot_UC, Mean:", mean(as.matrix(merged_df_sorted[1:10, (which(Variables == 0) + 3)])), ", Standard deviation: ", sd(as.matrix(merged_df_sorted[1:10, (which(Variables == 0) + 3)]))))
+    #print(paste(" spot_SC, Mean: ",mean(as.matrix(merged_df_sorted[1:10, (which(Variables > 0) + 3)])), ", Standard deviation: ", sd(as.matrix(merged_df_sorted[1:10, (which(Variables > 0) + 3)]))))
   }
   top_df <<- merged_df_sorted[1:Candidate_Number,]
 }

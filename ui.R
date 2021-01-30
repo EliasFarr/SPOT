@@ -17,18 +17,11 @@ library(sortable)
 library(shinybusy)
 library(reshape2)
 
-options(repos = BiocManager::repositories())
-#r <- getOption("repos")
-#r["CRAN"] <- "https://cran.rstudio.com"
-#r["ghrr"] <- "https://ghrr.github.io/drat"
-#r["BioC"] <- "https://bioconductor.org"
-#options(repos = r)
-
-params <- list(allsc_genes        = "sc_genes.csv",
-               allk_genes         = "Kaessmann_merge3.csv",
-               dotplot_genes      = "sc_dotplot_order.csv",
-               UMAP               = "UMAP_sc.csv",
-               Counts             = "Sc_counts_s.csv"
+params <- list(allsc_genes        = "Files/sc_P_berghei_averaged.csv",
+               allk_genes         = "Files/bulk_H_sapiens_averaged.csv",
+               dotplot_genes      = "Files/sc_P_berghei_dotplot.csv",
+               UMAP               = "Files/sc_P_berghei_UMAP.csv",
+               Counts             = "Files/sc_P_berghei_counts.csv"
 )
 
 source("helper_module.R")
@@ -250,25 +243,15 @@ ui <- navbarPage(
                                            'text/tab-separated-values', 'text/plain',
                                            '.csv','.tsv', 'text/xlsx','.xlsx'),
                                 ),
-                      radioGroupButtons( inputId = "Radio4",
-                                         label = "Choose algorithm",
-                                         choices = c("SPOT", "DEA"),
-                                         individual = TRUE,
-                                         checkIcon = list(
-                                           yes = tags$i(class = "fa fa-circle", 
-                                                        style = "color: #c00000"),
-                                           no = tags$i(class = "fa fa-circle-o", 
-                                                        style = "color: #c00000")
-                                           )
-                                         ),
                       ),
                uiOutput("reactive_sliders"),
                column(2,
                       radioGroupButtons(
-                        inputId = "Radio4",
+                        inputId = "Radio5",
                         label = "Alter Visualization",
                         choices = c("Table", 
-                                    "Bar chart"),
+                                    "Bar chart",
+                                    "Dot plot"),
                         individual = TRUE,
                         checkIcon = list(
                           yes = tags$i(class = "fa fa-circle", 
