@@ -27,6 +27,12 @@ Data was obtained from:
 
 >Cardoso-Moreira, M. u. a., 2019. Gene expression across mammalian organ development. Nature, 571(7766), S.505–509. [Paper](https://www.nature.com/articles/s41586-019-1338-5) [Data](https://www.ebi.ac.uk/arrayexpress/experiments/E-MTAB-6814/)
 
+### Citation
+
+If you use SPOT please cite as follows:
+
+>Elias Farr, Julia M Sattler, Friedrich Frischknecht, SPOT: a web-tool enabling Swift Profiling Of Transcriptomes; Biorxiv 2021
+
 ### Requirements
 
 All code was excecuted with R 4.0.3. Package requirements are listed below:
