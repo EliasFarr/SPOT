@@ -7,8 +7,13 @@ The increasing number of single cell and bulk RNAseq data sets describing comple
 
 ### Installation
 
-SPOT can be run on a local machine:
+An online version is available via https://frischknechtlab.shinyapps.io/SPOT/
+
+For R installation please visit the [r-project](https://cloud.r-project.org/).
+If you have R installed, SPOT can be run locally via:
 ```json
+    if (!requireNamespace("shiny", quietly = TRUE))
+        install.packages("shiny")
     shiny::runGitHub("EliasFarr/SPOT")
 ```
 ### Upload format
