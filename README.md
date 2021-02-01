@@ -21,6 +21,14 @@ Files for upload should have entities as first row and a gene identifier as firs
     <img src="www/Figure2.PNG" height="150"> 
 </p>
 
+### Data
+
+Data was obtained from: 
+
+Howick, V.M. u. a., 2019. The Malaria Cell Atlas: Single parasite transcriptomes across the complete Plasmodium life cycle. Science, 365(6455), S.774. [Paper](https://science.sciencemag.org/content/365/6455/eaaw2619) [Data](https://github.com/vhowick/MalariaCellAtlas/tree/master/Expression_Matrices/Smartseq2)
+
+Cardoso-Moreira, M. u. a., 2019. Gene expression across mammalian organ development. Nature, 571(7766), S.505–509. [Paper](https://www.nature.com/articles/s41586-019-1338-5) [Data](https://www.ebi.ac.uk/arrayexpress/experiments/E-MTAB-6814/)
+
 ### Requirements
 
 All code was excecuted with R 4.0.3. Package requirements are listed below:
@@ -47,13 +55,6 @@ Shinywidgets	| 0.5.4
 Sortable	| 0.4.4
 Stringr	| 1.4.0
 Tidyr	| 1.3.0
-
-Data was obtained from: 
-
-Howick, V.M. u. a., 2019. The Malaria Cell Atlas: Single parasite transcriptomes across the complete Plasmodium life cycle. Science, 365(6455), S.774. [Paper](https://science.sciencemag.org/content/365/6455/eaaw2619) [Data](https://github.com/vhowick/MalariaCellAtlas/tree/master/Expression_Matrices/Smartseq2)
-
-Cardoso-Moreira, M. u. a., 2019. Gene expression across mammalian organ development. Nature, 571(7766), S.505–509. [Paper](https://www.nature.com/articles/s41586-019-1338-5) [Data](https://www.ebi.ac.uk/arrayexpress/experiments/E-MTAB-6814/)
-
 
 ### Files
 
