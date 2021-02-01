@@ -1,8 +1,4 @@
 
-
-
-
-
 ### SPOT - Swift Profiling of Transcriptomes
 
 The increasing number of single cell and bulk RNAseq data sets describing complex gene expression profiles in different organisms, organs or cell types calls for an intuitive  tool allowing rapid comparative analysis. Here we present Swift Profiling Of Transcriptomes (SPOT) as a web tool that allows not only differential expression analysis but also fast ranking of genes fitting transcription profiles of interest. Based on a heuristic approach the spot algorithm ranks the genes according to their proximity to the user-defined gene expression profile of interest. The best hits are visualized as a table, bar chart or dot plot and can be exported as an Excel file. While the tool is generally applicable, we tested it on RNAseq data from malaria parasites that undergo multiple stage transformations during their complex life cycle as well as on data from multiple human organs during development. SPOT should enable non-bioinformaticians to easily analyse their own and any available dataset.  
@@ -11,8 +7,10 @@ The increasing number of single cell and bulk RNAseq data sets describing comple
 
 ### Installation
 
-
-
+SPOT can be run on a local machine:
+```json
+    shiny::runGitHub("EliasFarr/SPOT")
+```
 ### Upload format
 
 Files for upload should have entities as first row and a gene identifier as first column (see below and Example file). Counts should be in TPM normalization.
