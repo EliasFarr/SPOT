@@ -1,3 +1,4 @@
+options(repos = BiocManager::repositories())
 library(rsconnect)
 library(DT)
 library(shiny)
@@ -17,10 +18,10 @@ library(sortable)
 library(shinybusy)
 library(reshape2)
 
+
 params <- list(allsc_genes        = "Files/sc_P_berghei_averaged.csv",
                allk_genes         = "Files/bulk_H_sapiens_averaged.csv",
                dotplot_genes      = "Files/sc_P_berghei_dotplot.csv",
-               UMAP               = "Files/sc_P_berghei_UMAP.csv",
                Counts             = "Files/sc_P_berghei_counts.csv"
 )
 
@@ -32,8 +33,6 @@ human_genes <- read.csv2(params$allk_genes, stringsAsFactors = FALSE)
 
 sc_dot_plot <- read.csv2(params$dotplot_genes, stringsAsFactors = FALSE)
 
-UMAP_sc <- read.csv2(params$UMAP, stringsAsFactors = FALSE)
-
 Sc_counts <- as.matrix(read.csv2(params$Counts, sep = ";", stringsAsFactors = FALSE))
 
 ################################################################################
@@ -41,8 +40,9 @@ Sc_counts <- as.matrix(read.csv2(params$Counts, sep = ";", stringsAsFactors = FA
 ################################################################################
 
 ui <- navbarPage(
-  span(HTML(paste0(tags$sup(tags$i("X"), style = "font-size : 18px; color:#383D3B ; font-weight:bold"),"SPOT")), style = " color: #b22222; font-size : 32px; font-weight: bold"),
-  id = "navbar", selected = "value", 
+  span(HTML(paste0(tags$sup(tags$i("X"), style = "font-size : 18px; color:#383D3B ; font-weight:bold"),"SPOT")), style = " color: #c00000; font-size : 32px; font-weight: bold"),
+  id = "navbar", selected = "value", windowTitle = "SPOT - Swift Profiling Of Transcriptomics",
+
   tags$style(HTML("  *{font-family: Verdana;}
                       .navbar { background-color: #f1f1f1}
                       .navbar-default .navbar-nav > li > a {color:#c00000;}
@@ -52,10 +52,13 @@ ui <- navbarPage(
                       .navbar-default .navbar-nav > li > a:hover {color: white;background-color:#c00000;text-decoration:underline;text-color:white}
                       .button_DEA .bttn-danger{background-color: #c00000; border-color: black; margin-bottom: 10px }
                       .button_dd .bttn-danger{color: white; border-color: grey; background-color: #c00000; margin-bottom: 10px}
-                      .text_about {color:black; font-size: 14px;text-align: justify; margin-top: 10px; margin-bottom: 20px}
-                      .text_cite {color:black; font-size: 14px; font-weight: bold ;text-align: justify}
-                      ")),
-  tabPanel(span("SPOT expression profiles", style = "font-size : 20px; font-weight: bold "), value = "value",
+                      .text_about {color:black; font-size: 14px;text-align: justify; margin-top: 10px; margin-bottom: 20px; margin-left: 70px; margin-right: 70px}
+                      .text_cite {color:black; font-size: 14px; font-weight: bold ;text-align: justify; margin-left: 70px; margin-right: 70px}
+                      .text_ref {color:black; font-size: 14px; font-weight: bold ;text-align: justify; margin-top: 35px; margin-left: 70px; margin-right: 70px}
+                      .text_it {color:black; font-size: 14px; font-style: italic;text-align: justify; margin-top: 10px; margin-bottom: 20px; margin-left: 70px; margin-right: 70px}
+                      .pic {margin-top: 35px; margin-left: 0px; margin-right: 70px}
+                  ")),
+  tabPanel(span("SPOT expression profiles", style = "font-size : 20px; font-weight: bold"), value = "value",
            
            fluidPage(
              setShadow(id = "Component2a"),
@@ -243,6 +246,7 @@ ui <- navbarPage(
                                            'text/tab-separated-values', 'text/plain',
                                            '.csv','.tsv', 'text/xlsx','.xlsx'),
                                 ),
+                      
                       ),
                uiOutput("reactive_sliders"),
                column(2,
@@ -266,28 +270,63 @@ ui <- navbarPage(
   tabPanel(span("About", style = "font-size : 20px; font-weight: bold "),
            setShadow(id = "UMAP"),
            fluidRow(
-             column(4, offset = 1,
-                    div(class = "text_about",
-                        "The increasing number of single cell and bulk RNAseq data sets describing 
-                        complex gene expression profiles in different organisms, organs or cell types
-                        calls for an intuitive tool allowing rapid comparative analysis. Here we present 
-                        Swift Profiling Of Transcriptomics (SPOT) as a web tool that allows not only 
-                        differential expression analysis but also fast selection of genes fitting transcription
-                        profiles of interest. Based on a heuristic approach the spot algorithm ranks the genes 
-                        according to their proximity to the user-defined gene expression profile of interest. 
-                        The best hits are visualized as a table, bar chart or dot plot and can be exported as 
-                        an Excel file. While the tool is generally applicable, we tested it on RNAseq data from
-                        malaria parasites that undergo multiple stage transformations during their complex life 
-                        cycle as well as on data from multiple human organs during development. SPOT should enable
-                        non-bioinformaticians to easily analyse their own and any available dataset. "
+             column(5,
+                    div(class = "text_ref",
+                        "SPOT: enabling Swift Profiling Of Transcriptomes"
                     ),
-                    div(class = "text_cite",
-                    "Elias Farr, Julia M Sattler, Friedrich Frischknecht, SPOT: a web-tool enabling Swift Profiling Of Transcriptomics"
+                    div(class = "text_about",
+                        "The increasing number of single cell and bulk RNAseq data sets describing complex 
+                        gene expression profiles in different organisms, organs or cell types calls for an intuitive 
+                        tool allowing rapid comparative analysis. Here we present Swift Profiling Of Transcriptomes (SPOT) 
+                        as a web tool that allows not only differential expression analysis but also fast ranking of genes 
+                        fitting transcription profiles of interest. Based on a heuristic approach the spot algorithm ranks
+                        the genes according to their proximity to the user-defined gene expression profile of interest. 
+                        The best hits are visualized as a table, bar chart or dot plot and can be exported as an Excel 
+                        file. While the tool is generally applicable, we tested it on RNAseq data from malaria parasites 
+                        that undergo multiple stage transformations during their complex life cycle as well as on data 
+                        from multiple human organs during development. SPOT should enable non-bioinformaticians to easily 
+                        analyse their own and any available dataset.  "
+                    ),
+                    div(class = "text_it",
+                        "Elias Farr, Julia M Sattler, Friedrich Frischknecht, SPOT: a web-tool enabling Swift Profiling Of Transcriptomes; Biorxiv 2021",
+                        tags$a(href="https://www.biorxiv.org/", "Link")
                     )
              ),
-             column(5, offset = 1,
-                    plotlyOutput("UMAP")
+             column(5, 
+                    div(class= "pic",
+                    img(src='Figure1.PNG', align = "bottom", height = 420)
                     )
              )
+           ),
+           fluidRow(
+             
+             column(10, 
+                    
+                    div(class = "text_ref",
+                        "Further information and code: "
+                    ),
+                    div(class = "text_about",
+                        tags$a(href="https://github.com/EliasFarr/SPOT.git", "Github"),
+                        tags$a(href="https://www.biorxiv.org/", "Publication")
+                      
+                    ), 
+                    div(class = "text_cite",
+                        "Data was obtained from: "
+                    ),
+                    div(class = "text_about",
+                        "Howick, V.M. u. a., 2019. The Malaria Cell Atlas: Single parasite transcriptomes across the complete Plasmodium life cycle. Science, 365(6455), S.774.",
+                        tags$a(href="https://science.sciencemag.org/content/365/6455/eaaw2619", "Paper"),
+                        tags$a(href="https://github.com/vhowick/MalariaCellAtlas/tree/master/Expression_Matrices/Smartseq2", "Data")
+                    ), 
+                    div(class = "text_about",
+                        "Cardoso-Moreira, M. u. a., 2019. Gene expression across mammalian organ development. Nature, 571(7766), S.505-509.",
+                        tags$a(href="https://www.nature.com/articles/s41586-019-1338-5", "Paper"),
+                        tags$a(href="https://www.ebi.ac.uk/arrayexpress/experiments/E-MTAB-6814/", "Data")
+                    )
+                    
+                    
+             )
+             
            )
+  )
   )

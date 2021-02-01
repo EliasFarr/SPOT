@@ -2,7 +2,6 @@
 params <- list(allsc_genes        = "Files/sc_P_berghei_averaged.csv",
                allk_genes         = "Files/bulk_H_sapiens_averaged.csv",
                dotplot_genes      = "Files/sc_P_berghei_dotplot.csv",
-               UMAP               = "Files/sc_P_berghei_UMAP.csv",
                Counts             = "Files/sc_P_berghei_counts.csv"
 )
 
@@ -14,28 +13,35 @@ human_genes <- read.csv2(params$allk_genes, stringsAsFactors = FALSE)
 
 sc_dot_plot <- read.csv2(params$dotplot_genes, stringsAsFactors = FALSE)
 
-UMAP_sc <- read.csv2(params$UMAP, stringsAsFactors = FALSE)
-
 Sc_counts <- as.matrix(read.csv2(params$Counts, sep = ";", stringsAsFactors = FALSE))
 
 server <- function(input, output) {
 ################################################################################ 
 ##                              Component 1: SPOT                             ##
 ################################################################################
-  #colors <- c("#EFEBCE","#2E282A","#E8871E","#218380")
+  # color vector for boxplots
   colors <- c("#618C84","#726E75","#948B89","#D0D1AC")
   
+  # create table for section 3 "compare"
   table = sc_genes[,c(1:13)]
+  
+  # delete names for spot representation
   sc_genes = sc_genes[,-3]
   
   
   observe({
+    # get slider values 
     Variables = callModule(sliders_mod, "1", colnames(sc_genes[3:12]))
-    output_length = 100
+    # define length of output table 
+    output_length = 50
+    
     if(input$Algos == "SPOT"){
-      top_df <<- SPOT(sc_genes, Variables, columns = c(3:12), Candidate_Number = output_length)
+      #save results from spot calculation
+      top_df <- spot(sc_genes, Variables, columns = c(3:12), Candidate_Number = output_length)
       colnames(top_df)[ncol(top_df)] = "Gene ID"
+      
     }else if(input$Algos == "Correlation"){
+      
       top_df <- correlation(sc_genes, Variables, columns = c(3:12), Candidate_Number = output_length)
       colnames(top_df)[ncol(top_df)] = "Gene ID"
     }
@@ -76,13 +82,23 @@ server <- function(input, output) {
         sc_dotplot(dotplot_high_pct1)
       }
     })
+    
+    output$downloadData1 <- downloadHandler(
+      filename = function() {
+        paste0("SPOT results ", Sys.Date(), ".xlsx")
+      },
+      content = function(file) {
+        write.xlsx(top_df[,1:(ncol(top_df)-1)], file)
+      }
+    )
   })
+  
+  
   
   observe(
     output$sliders_K <- renderUI({
 
       gene_subset = human_genes[, c(1,2,(which(unlist(str_split(colnames(human_genes)[3:ncol(human_genes)], pattern = "_"))[seq(2, 270, 3)] %in% input$bucket_out) + 2))]
-      
       organs = unlist(str_split(colnames(gene_subset)[3:ncol(gene_subset)] , "_"))[seq(1, ((ncol(gene_subset) - 2) * 3), 3 )]
       dev_stage = unlist(str_split(colnames(gene_subset)[3:ncol(gene_subset)] , "_"))[seq(2, ((ncol(gene_subset) - 2) * 3), 3 )]
       colnames(gene_subset)[3:ncol(gene_subset)] = paste(organs, dev_stage)
@@ -91,13 +107,12 @@ server <- function(input, output) {
     })
     )
   
-  observe(
+  observe({
     
   
     output$Component2b <- renderPlotly({
 
       gene_subset = human_genes[, c(1,2,(which(unlist(str_split(colnames(human_genes)[3:ncol(human_genes)], pattern = "_"))[seq(2, 270, 3)] %in% input$bucket_out) + 2))]
-      
       organs = unlist(str_split(colnames(gene_subset)[3:ncol(gene_subset)] , "_"))[seq(1, ((ncol(gene_subset) - 2) * 3), 3 )]
       dev_stage = unlist(str_split(colnames(gene_subset)[3:ncol(gene_subset)] , "_"))[seq(2, ((ncol(gene_subset) - 2) * 3), 3 )]
       colnames(gene_subset)[3:ncol(gene_subset)] = paste(organs, dev_stage)
@@ -106,7 +121,7 @@ server <- function(input, output) {
       
       if(input$Algos == "SPOT" & dim(gene_subset)[2] > 2){
         
-        top_df <<- SPOT(gene_subset, Variables, columns = c(3:ncol(gene_subset)))
+        top_df <- spot(gene_subset, Variables, columns = c(3:ncol(gene_subset)))
         
       }else if(input$Algos == "Correlation"){
         
@@ -140,8 +155,17 @@ server <- function(input, output) {
         
       }
     })
+    
+    output$downloadData1 <- downloadHandler(
+      filename = function() {
+        paste0("SPOT results ", Sys.Date(), ".xlsx")
+      },
+      content = function(file) {
+        write.xlsx(top_df[,1:(ncol(top_df)-1)], file)
+      }
+    )
   
-  )
+  })
 ################################################################################
 ##                              Component 2: DEA                              ##
 ###############################################################################
@@ -166,20 +190,24 @@ server <- function(input, output) {
                  SS3_plasmo <- NormalizeData(SS3_plasmo)
                  update_modal_progress(0.2) # update progress bar value
                  if(input$algorithm == "Wilcox"){
-                   #library(limma)
-                   import::from(limma, rankSumTestWithCorrelation)
+                   library(limma)
+                   #import::from(limma, rankSumTestWithCorrelation)
                    Markers <- FindMarkers(SS3_plasmo, ident.1 = States[which(Variables > 0)], ident.2 = States[which(Variables == 0)], test.use = "wilcox")
-                   detach("imports")
+                   #detach("imports")
+                   detach(package:limma, unload = T)
+                   
                  }else if(input$algorithm == "MAST"){
-                   #library(MAST)
-                   import::from(MAST, FromMatrix, zlm)
+                   library(MAST)
+                   #import::from(MAST, FromMatrix, zlm)
                    Markers <- FindMarkers(SS3_plasmo, ident.1 = States[which(Variables > 0)], ident.2 = States[which(Variables == 0)], test.use = "MAST")
-                   detach("imports")
+                   #detach("imports")
+                   detach(package:MAST, unload = T)
                  }else if(input$algorithm == "DESeq2"){
-                   #library(DESeq2)
-                   import::from(DESeq2, DESeqDataSetFromMatrix, estimateSizeFactors, estimateDispersions, nbinomWaldTest, results)
+                   library(DESeq2)
+                   #import::from(DESeq2, DESeqDataSetFromMatrix, estimateSizeFactors, estimateDispersions, nbinomWaldTest, results)
                    Markers <- FindMarkers(SS3_plasmo, ident.1 = States[which(Variables > 0)], ident.2 = States[which(Variables == 0)], test.use = "DESeq2")
-                   detach("imports")
+                   #detach("imports")
+                   detach(package:limma, unload = T)
                  }
                  update_modal_progress(0.9)
                  remove_modal_progress()
@@ -295,7 +323,7 @@ server <- function(input, output) {
       
       Variables = callModule(sliders_mod, "6", colnames(inputFile))
       output_length = 100
-      top_df <<- SPOT(inputFile, Variables, colnames(inputFile)[2:length(inputFile)], Candidate_Number = output_length, preamble = 1)
+      top_df <<- spot(inputFile, Variables, colnames(inputFile)[2:length(inputFile)], Candidate_Number = output_length, preamble = 1)
       colnames(top_df)[1] <<- "Genes"
       top_df[2:length(top_df)] = round(top_df[,2:length(top_df)], 2)
       top_df_t = as.data.frame(t(top_df))
@@ -316,14 +344,7 @@ server <- function(input, output) {
     })
   )
   
-  output$downloadData1 <- downloadHandler(
-    filename = function() {
-      paste("SPOT results ", Sys.Date(), ".xlsx", sep="")
-    },
-    content = function(file) {
-      write.xlsx(top_df[,1:(ncol(top_df)-1)], file)
-    }
-  )
+ 
   output$downloadData3 <- downloadHandler(
     filename = function() {
       paste("SPOT results ", Sys.Date(), ".xlsx", sep="")
@@ -343,17 +364,5 @@ server <- function(input, output) {
 ################################################################################
 ##                              Component 5: About                            ##
 ################################################################################
-  observe(
-    
-    output$UMAP <- renderPlotly({
-      
-      UMAP_sc[,1:2] = apply(UMAP_sc[,1:2], 2, as.numeric)
-      
-      my_color_palette <- hue_pal()(10)
-      fig = plot_ly(data = UMAP_sc, x = ~UMAP_1, y = ~UMAP_2, color = ~Ident, colors = my_color_palette) 
-      fig = fig %>% layout()
-      fig
-    })
-  )    
   
 }

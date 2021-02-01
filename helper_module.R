@@ -168,7 +168,7 @@ bulk_dotplot <- function(data, ytitle = "Genes", xtitle = "Variables"){
 ################################################################################
 
 #calculate spot score
-SPOT <- function(data, Variables, columns = c(1:ncol(data)), preamble = c(1:2), Candidate_Number = 50){
+spot <- function(data, Variables, columns = c(1:ncol(data)), preamble = c(1:2), Candidate_Number = 50){
     data1 = as.matrix(scale(data[,columns]))
   
     data1[which(data1 > 4)] = 4
