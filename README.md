@@ -42,7 +42,7 @@ If you use SPOT please cite as follows:
 
 ### Requirements
 
-All code was excecuted with R 4.0.3. Package requirements are listed below:
+All code was excecuted with R 4.0.3. Package requirements are listed below. R environment can be restored via `renv::restore()` using the provided `renv.lock` file.
 
 package | version
 --- | ---
@@ -66,18 +66,3 @@ Shinywidgets	| 0.5.4
 Sortable	| 0.4.4
 Stringr	| 1.4.0
 Tidyr	| 1.3.0
-
-### Files
-
-File | Use
---- | ---
-ui.R | user interface (UI)
-server.R | server code
-helper_module.R | shiny modules and functions for UI and server
-sc_P_berghei_counts.csv | *P. berghei* scRNAseq data from Howick *et al.* link XXX
-sc_P_berghei_averaged.csv | *P. berghei* scRNAseq data, averaged for every lifecycle stage (annotation shortenedLifestage4 from Howick *et al.* 2019 link XXX)
-sc_P_berghei_dotplot.csv | *P. berghei* scRNAseq data in dot plot file format 
-sc_P_berghei_UMAP.csv | UMAP coordinates *P. berghei* scRNAseq data
-bulk_H_sapiens_averaged.csv | *H. sapiens* bulkRNAseq data from Cardoso *et al.*, averaged for every developmental stage 
-
- 
