@@ -104,14 +104,14 @@ ui <- navbarPage(
                             dropdown(
                               
                               bucket_list(
-                                header = "Choose developmental timepoints per Drag n Drop.\n wpc -> week post conception",
+                                header = "To choose developmental stages to be included in analysis, drag them from No analysis and drop them in Analysis.\n wpc -> week post conception",
                                 add_rank_list(input_id = "bucket_in",
-                                              text = "Drag from here",
+                                              text = "No Analysis",
                                               labels = c("4wpc", "10wpc", "20wpc", "infant", "toddler", "school", 
                                                          "teenager", "youngAdult", "youngMidAge", "olderMidAge", "senior")
                                               ),
                                 add_rank_list( input_id = "bucket_out",
-                                               text = "to here",
+                                               text = "Analysis",
                                                labels = c("newborn")
                                                ),
                                 orientation = "horizontal"
@@ -149,7 +149,7 @@ ui <- navbarPage(
                       
                       conditionalPanel(
                         condition = "input.dataSwitch2 == 'Plasmodium (single cell)' ",
-                        selectInput("spec_gene2", "Pick genes to visualize:", choices = c("a", "b"), NULL, multiple = TRUE), #sc_genes$PB_ID
+                        selectInput("spec_gene2", "Pick genes to visualize:", choices = sc_genes[,1], NULL, multiple = TRUE), #sc_genes$PB_ID
                       ),
                       
                       radioGroupButtons(

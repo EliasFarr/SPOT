@@ -37,12 +37,12 @@ server <- function(input, output) {
     
     if(input$Algos == "SPOT"){
       #save results from spot calculation
-      top_df <- spot(sc_genes, Variables, columns = c(3:12), Candidate_Number = output_length)
+      top_df <<- spot(sc_genes, Variables, columns = c(3:12), Candidate_Number = output_length)
       colnames(top_df)[ncol(top_df)] = "Gene ID"
       
     }else if(input$Algos == "Correlation"){
       
-      top_df <- correlation(sc_genes, Variables, columns = c(3:12), Candidate_Number = output_length)
+      top_df <<- correlation(sc_genes, Variables, columns = c(3:12), Candidate_Number = output_length)
       colnames(top_df)[ncol(top_df)] = "Gene ID"
     }
     top_df_t <- as.data.frame(t(top_df))
@@ -83,87 +83,64 @@ server <- function(input, output) {
       }
     })
     
-    output$downloadData1 <- downloadHandler(
-      filename = function() {
-        paste0("SPOT results ", Sys.Date(), ".xlsx")
-      },
-      content = function(file) {
-        write.xlsx(top_df[,1:(ncol(top_df)-1)], file)
-      }
-    )
   })
   
   
   
-  observe(
+  observe({
     output$sliders_K <- renderUI({
-
-      gene_subset = human_genes[, c(1,2,(which(unlist(str_split(colnames(human_genes)[3:ncol(human_genes)], pattern = "_"))[seq(2, 270, 3)] %in% input$bucket_out) + 2))]
-      organs = unlist(str_split(colnames(gene_subset)[3:ncol(gene_subset)] , "_"))[seq(1, ((ncol(gene_subset) - 2) * 3), 3 )]
-      dev_stage = unlist(str_split(colnames(gene_subset)[3:ncol(gene_subset)] , "_"))[seq(2, ((ncol(gene_subset) - 2) * 3), 3 )]
-      colnames(gene_subset)[3:ncol(gene_subset)] = paste(organs, dev_stage)
-
+      
+      gene_subset <<- human_genes[, c(1,2,(which(unlist(str_split(colnames(human_genes)[3:ncol(human_genes)], pattern = "_"))[seq(2, 270, 2)] %in% input$bucket_out) + 2))]
       slidersUI("2", colnames(gene_subset)[3:ncol(gene_subset)])
     })
-    )
-  
-  observe({
+    
     
   
     output$Component2b <- renderPlotly({
-
-      gene_subset = human_genes[, c(1,2,(which(unlist(str_split(colnames(human_genes)[3:ncol(human_genes)], pattern = "_"))[seq(2, 270, 3)] %in% input$bucket_out) + 2))]
-      organs = unlist(str_split(colnames(gene_subset)[3:ncol(gene_subset)] , "_"))[seq(1, ((ncol(gene_subset) - 2) * 3), 3 )]
-      dev_stage = unlist(str_split(colnames(gene_subset)[3:ncol(gene_subset)] , "_"))[seq(2, ((ncol(gene_subset) - 2) * 3), 3 )]
-      colnames(gene_subset)[3:ncol(gene_subset)] = paste(organs, dev_stage)
-
-      Variables = callModule(sliders_mod, "2", colnames(gene_subset)[3:ncol(gene_subset)])
+      gene_subset <<- human_genes[, c(1,2,(which(unlist(str_split(colnames(human_genes)[3:ncol(human_genes)], pattern = "_"))[seq(2, 270, 2)] %in% input$bucket_out) + 2))]
       
-      if(input$Algos == "SPOT" & dim(gene_subset)[2] > 2){
-        
-        top_df <- spot(gene_subset, Variables, columns = c(3:ncol(gene_subset)))
-        
-      }else if(input$Algos == "Correlation"){
-        
-        top_df = correlation(gene_subset, Variables, columns = c(3:ncol(gene_subset)))
-      }
-      
-      top_df[,3:ncol(top_df)] = round(top_df[,3:ncol(top_df)], 2)#round values
-      
-      top_df_t = as.data.frame(t(top_df))
-      
-      if(input$Radio2 == "Table"){
-        
-        columnwidth = c( 85, 70)
-        
-        generate_table(top_df, columns = c(1:(ncol(top_df)-1)), columnwidth, header_size = c(12,10))
-        
-      } else if(input$Radio2 == "Bar chart"){
-        
-        if(is.null(input$spec_gene2) == FALSE){
-          #change ids und create ranks to get the column index of the genes chosen
-          Gene_indices = get_indices(data = top_df, TextInput = input$spec_gene2)
-          subplot_profiles(dat = top_df, top_df_t, Gene_indices, col_vec = c("#618C84","#726E75","#948B89","#D0D1AC"))
+      if(ncol(gene_subset) > 2){
+          Variables = callModule(sliders_mod, "2", colnames(gene_subset)[3:ncol(gene_subset)])
           
-        }else{ 
+          if(input$Algos == "SPOT" & dim(gene_subset)[2] > 2){
+            
+            top_df <<- spot(gene_subset, Variables, columns = c(3:ncol(gene_subset)))
+            
+          }else if(input$Algos == "Correlation"){
+            
+            top_df <<- correlation(gene_subset, Variables, columns = c(3:ncol(gene_subset)))
+          }
           
-          subplot_profiles(top_df, top_df_t, 1:4, profile_columns = c(4:(ncol(top_df)-1)), range_ = c(0, max(top_df[4:ncol(top_df)])))
+          top_df[,3:ncol(top_df)] = round(top_df[,3:ncol(top_df)], 2)#round values
           
-        }
-      }else{
-        bulk_dotplot(top_df[1:10,1:(ncol(top_df)-1)], ytitle = "Ensembl ID", xtitle = F)
-        
-      }
+          top_df_t = as.data.frame(t(top_df))
+          
+          if(input$Radio2 == "Table"){
+            
+            columnwidth = c( 85, 70)
+            
+            generate_table(top_df, columns = c(1:(ncol(top_df)-1)), columnwidth, header_size = c(12,10))
+            
+          } else if(input$Radio2 == "Bar chart"){
+            
+            if(is.null(input$spec_gene2) == FALSE){
+              #change ids und create ranks to get the column index of the genes chosen
+              Gene_indices = get_indices(data = top_df, TextInput = input$spec_gene2)
+              subplot_profiles(dat = top_df, top_df_t, Gene_indices, col_vec = c("#618C84","#726E75","#948B89","#D0D1AC"))
+              
+            }else{ 
+              
+              subplot_profiles(top_df, top_df_t, 1:4, profile_columns = c(4:(ncol(top_df)-1)), range_ = c(0, max(top_df[4:ncol(top_df)])))
+              
+            }
+          }else{
+            bulk_dotplot(top_df[1:10,1:(ncol(top_df)-1)], ytitle = "Ensembl ID", xtitle = F)
+            
+          }
+       }else{
+         "auto"
+       }
     })
-    
-    output$downloadData1 <- downloadHandler(
-      filename = function() {
-        paste0("SPOT results ", Sys.Date(), ".xlsx")
-      },
-      content = function(file) {
-        write.xlsx(top_df[,1:(ncol(top_df)-1)], file)
-      }
-    )
   
   })
 ################################################################################
@@ -344,7 +321,14 @@ server <- function(input, output) {
     })
   )
   
- 
+  output$downloadData1 <- downloadHandler(
+    filename = function() {
+      paste0("SPOT results ", Sys.Date(), ".xlsx")
+    },
+    content = function(file) {
+      write.xlsx(top_df[,1:(ncol(top_df)-1)], file)
+    }
+  )
   output$downloadData3 <- downloadHandler(
     filename = function() {
       paste("SPOT results ", Sys.Date(), ".xlsx", sep="")
