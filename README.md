@@ -9,7 +9,7 @@ The increasing number of single cell and bulk RNAseq data sets describing comple
 
 ### Installation
 
-An online version is available via https://frischknechtlab.shinyapps.io/SPOT/
+An online version is available via [frischknechtlab.shinyapps.io/SPOT/](https://frischknechtlab.shinyapps.io/SPOT/)
 
 For R installation please visit the [r-project](https://cloud.r-project.org/).
 If you have R installed, SPOT can be run locally via:
