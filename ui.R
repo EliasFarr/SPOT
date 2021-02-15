@@ -104,14 +104,14 @@ ui <- navbarPage(
                             dropdown(
                               
                               bucket_list(
-                                header = "To choose developmental stages to be included in analysis, drag them from No analysis and drop them in Analysis.\n wpc -> week post conception",
+                                header = "Drag items from available datasets and drop one or several for inclusion in analysis.\n wpc -> week post conception",
                                 add_rank_list(input_id = "bucket_in",
-                                              text = "No Analysis",
+                                              text = "Available datasets",
                                               labels = c("4wpc", "10wpc", "20wpc", "infant", "toddler", "school", 
                                                          "teenager", "youngAdult", "youngMidAge", "olderMidAge", "senior")
                                               ),
                                 add_rank_list( input_id = "bucket_out",
-                                               text = "Analysis",
+                                               text = "Selected for analysis",
                                                labels = c("newborn")
                                                ),
                                 orientation = "horizontal"

@@ -97,6 +97,7 @@ server <- function(input, output) {
     
   
     output$Component2b <- renderPlotly({
+      
       gene_subset <<- human_genes[, c(1,2,(which(unlist(str_split(colnames(human_genes)[3:ncol(human_genes)], pattern = "_"))[seq(2, 270, 2)] %in% input$bucket_out) + 2))]
       
       if(ncol(gene_subset) > 2){
