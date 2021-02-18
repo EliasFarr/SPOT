@@ -1,6 +1,7 @@
 
 params <- list(allsc_genes        = "Files/sc_P_berghei_averaged.csv",
                allk_genes         = "Files/bulk_H_sapiens_averaged.csv",
+               allsa_genes        = "Files/bulk_H_sapiens_cov_averaged.csv",
                dotplot_genes      = "Files/sc_P_berghei_dotplot.csv",
                Counts             = "Files/sc_P_berghei_counts.csv"
 )
@@ -10,6 +11,8 @@ source("helper_module.R")
 sc_genes <- read.csv2(params$allsc_genes, stringsAsFactors = FALSE)
 
 human_genes <- read.csv2(params$allk_genes, stringsAsFactors = FALSE)
+
+cov_genes <- read.csv2(params$allsa_genes, stringsAsFactors = FALSE)
 
 sc_dot_plot <- read.csv2(params$dotplot_genes, stringsAsFactors = FALSE)
 
@@ -143,6 +146,44 @@ server <- function(input, output) {
        }
     })
   
+  })
+  
+  observe({
+    # get slider values 
+    Variables = callModule(sliders_mod, "2", colnames(cov_genes[3:14]))
+    
+    # define length of output table 
+    output_length = 50
+
+    if(input$Algos == "SPOT"){
+      #save results from spot calculation
+      top_df <<- spot(cov_genes, Variables, columns = c(3:14), Candidate_Number = output_length)
+      colnames(top_df)[ncol(top_df)] = "Gene ID"
+      
+    }else if(input$Algos == "Correlation"){
+      
+      top_df <<- correlation(cov_genes, Variables, columns = c(3:14), Candidate_Number = output_length)
+      colnames(top_df)[ncol(top_df)] = "Gene ID"
+    }
+    top_df_t <- as.data.frame(t(top_df))
+
+    output$Component2c <- renderPlotly({ 
+      
+      if(input$Radio2 == "Table"){
+        
+        columnwidth = c(95, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70)
+        generate_table(top_df, c(ncol(top_df), 2:15), columnwidth, Table_rows = 50)
+      
+      } else if(input$Radio2 == "Bar chart"){
+        
+        subplot_profiles(top_df, top_df_t, 1:4, range_ = c(0, 1000), profile_columns = c(4:13))
+          
+      }else if(input$Radio2 == "Dot plot"){
+        
+        bulk_dotplot(top_df[1:10,1:(ncol(top_df)-1)], ytitle = "Ensembl ID", xtitle = F)
+      }
+    })
+    
   })
 ################################################################################
 ##                              Component 2: DEA                              ##

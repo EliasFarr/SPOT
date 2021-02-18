@@ -21,6 +21,7 @@ library(reshape2)
 
 params <- list(allsc_genes        = "Files/sc_P_berghei_averaged.csv",
                allk_genes         = "Files/bulk_H_sapiens_averaged.csv",
+               allsa_genes        = "Files/bulk_H_sapiens_cov_averaged.csv",
                dotplot_genes      = "Files/sc_P_berghei_dotplot.csv",
                Counts             = "Files/sc_P_berghei_counts.csv"
 )
@@ -30,6 +31,8 @@ source("helper_module.R")
 sc_genes <- read.csv2(params$allsc_genes, stringsAsFactors = FALSE)
 
 human_genes <- read.csv2(params$allk_genes, stringsAsFactors = FALSE)
+
+cov_genes <- read.csv2(params$allsa_genes, stringsAsFactors = FALSE)
 
 sc_dot_plot <- read.csv2(params$dotplot_genes, stringsAsFactors = FALSE)
 
@@ -63,6 +66,7 @@ ui <- navbarPage(
            fluidPage(
              setShadow(id = "Component2a"),
              setShadow(id = "Component2b"),
+             setShadow(id = "Component2c"),
              
              conditionalPanel(
                condition = "input.dataSwitch2 == 'Plasmodium (single cell)'",
@@ -72,6 +76,12 @@ ui <- navbarPage(
              conditionalPanel(
                condition = "input.dataSwitch2 == 'Human organs (bulk)'",
                withSpinner(plotlyOutput("Component2b"), type = "2", color.background = "white", color = "#c00000"),
+               
+             ),
+             
+             conditionalPanel(
+               condition = "input.dataSwitch2 == 'COVID cell lines (bulk)'",
+               withSpinner(plotlyOutput("Component2c"), type = "2", color.background = "white", color = "#c00000"),
                
              ),
              chooseSliderSkin("Flat"),
@@ -130,7 +140,7 @@ ui <- navbarPage(
                       pickerInput(
                         inputId = "dataSwitch2",
                         label = "Select Dataset", 
-                        choices = c("Plasmodium (single cell)", "Human organs (bulk)")
+                        choices = c("Plasmodium (single cell)", "Human organs (bulk)", "COVID cell lines (bulk)")
                       ),
                     
                ),
@@ -143,6 +153,11 @@ ui <- navbarPage(
                conditionalPanel(
                  condition = "input.dataSwitch2 == 'Human organs (bulk)'",
                  uiOutput("sliders_K"),
+               ),
+               
+               conditionalPanel(
+                 condition = "input.dataSwitch2 == 'COVID cell lines (bulk)'",
+                 slidersUI("2", colnames(cov_genes[3:14])),
                ),
                
                column(2,
