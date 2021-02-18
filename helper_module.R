@@ -146,9 +146,9 @@ sc_dotplot <- function(data){
 }
 
 #create unicolor boxplot 
-bulk_dotplot <- function(data, ytitle = "Genes", xtitle = "Variables"){
-  data$Ensembl_ID = paste(0:9, data$Ensembl_ID)
-  data = melt(data[,c(1:2, 4:ncol(data))])
+bulk_dotplot <- function(data, ytitle = "Genes", xtitle = "Variables", label = data$Ensembl_ID, boarder1 = 2, boarder2 = 4){
+  data$Ensembl_ID = paste(0:9, label)
+  data = melt(data[,c(1:boarder1, boarder2:ncol(data))])
   
   fig <- plot_ly(data, x = ~variable, y = ~Ensembl_ID, text = paste("Expression: TPM", data$value), type = 'scatter', mode = 'markers',
                  marker = list(size = ~(value/max(value))*20, opacity = 0.8), color = "#c00000", colors = c( "#c00000"),
@@ -192,10 +192,6 @@ spot <- function(data, Variables, columns = c(1:ncol(data)), preamble = c(1:2), 
     merged_df <- cbind(data[,preamble], spot_Score, data[,columns], data[,ncol(data)])
     merged_df = subset(merged_df, (mean_wanted_cols - mean_unwanted_cols) > 0)
     merged_df_sorted <- merged_df %>% dplyr::arrange(desc(spot_Score))
-    if(length(which(Variables > 0)) > 0){
-      #print(paste("spot_UC, Mean:", mean(as.matrix(merged_df_sorted[1:10, (which(Variables == 0) + 3)])), ", Standard deviation: ", sd(as.matrix(merged_df_sorted[1:10, (which(Variables == 0) + 3)]))))
-      #print(paste(" spot_SC, Mean: ",mean(as.matrix(merged_df_sorted[1:10, (which(Variables > 0) + 3)])), ", Standard deviation: ", sd(as.matrix(merged_df_sorted[1:10, (which(Variables > 0) + 3)]))))
-    }
     top_df <- merged_df_sorted[1:Candidate_Number,]
 }
 
@@ -207,9 +203,5 @@ correlation <- function(data, Variables, columns = c(1:ncol(data)), preamble = c
   Correlation = cor(t(data1), 2*Variables)
   merged_df <- cbind(data[,preamble], Correlation, data[,columns], data[,ncol(data)])
   merged_df_sorted <- merged_df %>% dplyr::arrange(desc(Correlation))
-  if(length(which(Variables > 0)) > 0){
-    #print(paste("spot_UC, Mean:", mean(as.matrix(merged_df_sorted[1:10, (which(Variables == 0) + 3)])), ", Standard deviation: ", sd(as.matrix(merged_df_sorted[1:10, (which(Variables == 0) + 3)]))))
-    #print(paste(" spot_SC, Mean: ",mean(as.matrix(merged_df_sorted[1:10, (which(Variables > 0) + 3)])), ", Standard deviation: ", sd(as.matrix(merged_df_sorted[1:10, (which(Variables > 0) + 3)]))))
-  }
   top_df <<- merged_df_sorted[1:Candidate_Number,]
 }

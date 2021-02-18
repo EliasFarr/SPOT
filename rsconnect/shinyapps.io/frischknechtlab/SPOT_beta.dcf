@@ -5,9 +5,9 @@ account: frischknechtlab
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 3415434
-bundleId: 4171488
+bundleId: 4240741
 url: https://frischknechtlab.shinyapps.io/SPOT_beta/
-when: 1612279159.36405
+when: 1613653071.25611
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: .RData|.Rprofile|Example.csv|LICENSE|README.md|Files/sc_P_berghei_UMAP.csv|www/favicon.ico|www/Figure2.PNG|www/Icon.PNG
+ignoredFiles: .RData|.Rprofile|Example.csv|LICENSE|README.md|www/favicon.ico|www/Figure2.PNG|www/Icon.PNG

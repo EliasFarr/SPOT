@@ -357,7 +357,7 @@ server <- function(input, output) {
       
       }else{
         
-        bulk_dotplot(top_df[1:10,1:(ncol(top_df)-1)])
+        bulk_dotplot(top_df[1:10,1:(ncol(top_df)-1)], label = top_df[1:10, 1], boarder1 = 1, boarder2 = 3)
       }
       
     })
