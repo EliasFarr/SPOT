@@ -206,6 +206,14 @@ ui <- navbarPage(
                                       style = "color: #c00000"))
                       ),
                       
+                      conditionalPanel(
+                        condition = "input.algorithm == 'DESeq2'",
+                        helpText("Attention: this calculation will take", 
+                                 "several minutes. For more specific questions",
+                                 "we suggest working directly with DESeq2."),
+                        
+                      ),
+                      
                       downloadButton('downloadData2', 'Download table as .xlsx')
                       
                ),
@@ -291,20 +299,22 @@ ui <- navbarPage(
                     ),
                     div(class = "text_about",
                         "The increasing number of single cell and bulk RNAseq data sets describing complex 
-                        gene expression profiles in different organisms, organs or cell types calls for an intuitive 
-                        tool allowing rapid comparative analysis. Here we present Swift Profiling Of Transcriptomes (SPOT) 
-                        as a web tool that allows not only differential expression analysis but also fast ranking of genes 
-                        fitting transcription profiles of interest. Based on a heuristic approach the spot algorithm ranks
-                        the genes according to their proximity to the user-defined gene expression profile of interest. 
-                        The best hits are visualized as a table, bar chart or dot plot and can be exported as an Excel 
-                        file. While the tool is generally applicable, we tested it on RNAseq data from malaria parasites 
-                        that undergo multiple stage transformations during their complex life cycle as well as on data 
-                        from multiple human organs during development. SPOT should enable non-bioinformaticians to easily 
-                        analyse their own and any available dataset.  "
+                        gene expression profiles in different organisms, organs or cell types calls for an 
+                        intuitive tool allowing rapid comparative analysis. Here we present Swift Profiling 
+                        Of Transcriptomes (SPOT) as a web tool that allows not only differential expression
+                        analysis but also fast ranking of genes fitting transcription profiles of interest.
+                        Based on a heuristic approach the spot algorithm ranks the genes according to their
+                        proximity to the user-defined gene expression profile of interest. The best hits are 
+                        visualized as a table, bar chart or dot plot and can be exported as an Excel file.
+                        While the tool is generally applicable, we tested it on RNAseq data from malaria parasites
+                        that undergo multiple stage transformations during their complex life cycle as well as
+                        on data from multiple human organs during development and cell lines infected by the
+                        SARS-CoV-2 virus. SPOT should enable non-bioinformaticians to easily analyse their own 
+                        and any available dataset. "
                     ),
                     div(class = "text_it",
                         "Elias Farr, Julia M Sattler, Friedrich Frischknecht, SPOT: a web-tool enabling Swift Profiling Of Transcriptomes; Biorxiv 2021",
-                        tags$a(href="https://www.biorxiv.org/", "Link")
+                        tags$a(href="https://www.biorxiv.org/content/10.1101/2021.03.03.433767v1", "Link")
                     )
              ),
              column(5, 
@@ -322,7 +332,8 @@ ui <- navbarPage(
                     ),
                     div(class = "text_about",
                         tags$a(href="https://github.com/EliasFarr/SPOT.git", "Github"),
-                        tags$a(href="https://www.biorxiv.org/", "Publication")
+                        tags$a(href="https://www.biorxiv.org/content/10.1101/2021.03.03.433767v1", "Publication"),
+                        tags$a(href="https://www.biorxiv.org/content/biorxiv/early/2021/03/04/2021.03.03.433767/DC1/embed/media-1.zip?download=true", "Documentation")
                       
                     ), 
                     div(class = "text_cite",
