@@ -37,7 +37,7 @@ Data was obtained from:
 
 If you use SPOT please cite as follows:
 
->Elias Farr, Julia M Sattler, Friedrich Frischknecht, SPOT: a web-tool enabling Swift Profiling Of Transcriptomes; Biorxiv 2021
+>Elias Farr, Julia M Sattler, Friedrich Frischknecht, SPOT: a web-tool enabling Swift Profiling Of Transcriptomes; Biorxiv 2021 [Doi](https://doi.org/10.1101/2021.03.03.433767)
 
 ### Requirements
 
