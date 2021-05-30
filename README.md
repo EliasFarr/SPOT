@@ -19,7 +19,7 @@ If you have R installed, SPOT can be run locally via:
 ```
 ### Upload format
 
-Files for upload should have entities as first row and a gene identifier as first column (see below and Example file). Counts should be in TPM normalization.
+Normalized count files for upload should have entities as first row and a gene identifier as first column (see below and Example file). Counts should be in TPM normalization. Raw counts should have a first row, in which the cell identity is stated. .csv files should have semicolons as separator and commas as decimal separator. Example files are provided in the main folder (Example_normcounts, Example_rawcounts). Please note, that SPOT was created for raw and normalized single cell - , as well as normalized bulk RNAseq datasets. For analysis of raw bulk RNAseq counts please use the existing tools.
 
 <p align="center" #>
     <img src="www/Figure2.PNG" height="150"> 
@@ -33,6 +33,8 @@ Data was obtained from:
 
 >Cardoso-Moreira, M. u. a., 2019. Gene expression across mammalian organ development. Nature, 571(7766), S.505–509. [Paper](https://www.nature.com/articles/s41586-019-1338-5) [Data](https://www.ebi.ac.uk/arrayexpress/experiments/E-MTAB-6814/)
 
+>Wyler E., et al., 2021. Transcriptomic profiling of SARS-CoV-2 infected human cell lines identifies HSP90 as target for COVID-19 therapy. iScience, 24(3), 102151. [Paper](https://www.sciencedirect.com/science/article/pii/S258900422100119X?via%3Dihub#undfig1) [Data](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE148729)
+
 ### Citation
 
 If you use SPOT please cite as follows:
@@ -45,23 +47,24 @@ All code was excecuted with R 4.0.3. Package requirements are listed below. R en
 
 package | version
 --- | ---
-DESeq2	| 1.30.0
-DT	| 0.16
+DESeq2	| 1.30.1
+DT	| 0.18
+edgeR | 3.32.1
 EnvStats	| 2.4.0
-Limma| 3.46.0
+limma| 3.46.0
 MAST	| 1.16.0
-matrixStats	| 0.57.0
-Plotly	| 4.9.2.1
-Plyr	| 1.8.6
-Reshape2	| 1.4.4
-Rlist| 	0.4.6.1
-Scales	| 1.1.1
-Seurat	| 3.2.2
-Shiny	| 1.5.0
-Shinybusy	| 0.2.2
-Shinycssloaders	| 1.0.0
-shinyEffects	| 0.1.0
-Shinywidgets	| 0.5.4
-Sortable	| 0.4.4
-Stringr	| 1.4.0
-Tidyr	| 1.3.0
+matrixStats	| 0.58.0
+Plotly	| 4.9.3
+plyr	| 1.8.6
+reshape2	| 1.4.4
+rlist| 	0.4.6.1
+scales	| 1.1.1
+Seurat	| 4.0.1
+Shiny	| 1.6.0
+shinybusy	| 0.2.2
+shinycssloaders	| 1.0.0
+shinyEffects	| 0.2.0
+shinywidgets	| 0.6.0
+sortable	| 0.4.4
+stringr	| 1.4.0
+tidyr	| 1.1.3
