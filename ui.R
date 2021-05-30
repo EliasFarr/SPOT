@@ -1,4 +1,5 @@
 options(repos = BiocManager::repositories())
+options(shiny.maxRequestSize = 100*1024^2)
 library(rsconnect)
 library(DT)
 library(shiny)
@@ -17,11 +18,13 @@ library(stringr)
 library(sortable)
 library(shinybusy)
 library(reshape2)
+library(edgeR)
+library(shinyLP)
 
 
 params <- list(allsc_genes        = "Files/sc_P_berghei_averaged.csv",
                allk_genes         = "Files/bulk_H_sapiens_averaged.csv",
-               allsa_genes        = "Files/bulk_H_sapiens_cov_averaged.csv",
+               allsa_genes        = "Files/bulk_Calu3_A.csv",
                dotplot_genes      = "Files/sc_P_berghei_dotplot.csv",
                Counts             = "Files/sc_P_berghei_counts.csv"
 )
@@ -58,6 +61,7 @@ ui <- navbarPage(
                       .text_about {color:black; font-size: 14px;text-align: justify; margin-top: 10px; margin-bottom: 20px; margin-left: 70px; margin-right: 70px}
                       .text_cite {color:black; font-size: 14px; font-weight: bold ;text-align: justify; margin-left: 70px; margin-right: 70px}
                       .text_ref {color:black; font-size: 14px; font-weight: bold ;text-align: justify; margin-top: 35px; margin-left: 70px; margin-right: 70px}
+                      .text_dwld {color:black; font-size: 14px; font-weight: bold;text-align: justify; margin-top: 5px; margin-bottom: 5px}
                       .text_it {color:black; font-size: 14px; font-style: italic;text-align: justify; margin-top: 10px; margin-bottom: 20px; margin-left: 70px; margin-right: 70px}
                       .pic {margin-top: 35px; margin-left: 0px; margin-right: 70px}
                   ")),
@@ -80,7 +84,7 @@ ui <- navbarPage(
              ),
              
              conditionalPanel(
-               condition = "input.dataSwitch2 == 'COVID cell lines (bulk)'",
+               condition = "input.dataSwitch2 == 'COVID cell line (bulk)'",
                withSpinner(plotlyOutput("Component2c"), type = "2", color.background = "white", color = "#c00000"),
                
              ),
@@ -140,7 +144,7 @@ ui <- navbarPage(
                       pickerInput(
                         inputId = "dataSwitch2",
                         label = "Select Dataset", 
-                        choices = c("Plasmodium (single cell)", "Human organs (bulk)", "COVID cell lines (bulk)")
+                        choices = c("Plasmodium (single cell)", "Human organs (bulk)", "COVID cell line (bulk)")
                       ),
                     
                ),
@@ -156,8 +160,8 @@ ui <- navbarPage(
                ),
                
                conditionalPanel(
-                 condition = "input.dataSwitch2 == 'COVID cell lines (bulk)'",
-                 slidersUI("2", colnames(cov_genes[3:14])),
+                 condition = "input.dataSwitch2 == 'COVID cell line (bulk)'",
+                 slidersUI("2", colnames(cov_genes[3:13])),
                ),
                
                column(2,
@@ -178,8 +182,11 @@ ui <- navbarPage(
                           no = tags$i(class = "fa fa-circle-o", 
                                       style = "color: #c00000"))
                       ),
-                      
-                      downloadButton('downloadData1', 'Download table as .xlsx')
+                      div(class = "text_dwld",
+                          "Download:"
+                      ),
+                      downloadButton('downloadData1', 'as .xlsx'),
+                      downloadButton('downloadData4', 'as .csv')
                       
                )))),
   
@@ -213,8 +220,11 @@ ui <- navbarPage(
                                  "we suggest working directly with DESeq2."),
                         
                       ),
-                      
-                      downloadButton('downloadData2', 'Download table as .xlsx')
+                      div(class = "text_dwld",
+                          "Download:"
+                      ),
+                      downloadButton('downloadData2', 'as .xlsx'),
+                      downloadButton('downloadData5', 'as .csv')
                       
                ),
                slidersUI("5", colnames(sc_genes[4:13])),
@@ -245,34 +255,110 @@ ui <- navbarPage(
            
            fluidPage(
              setShadow(id = "Component1"),
-             setShadow("tab_gen"),
              withSpinner(plotlyOutput("Component1"), type = "2", color.background = "white", color = "#c00000"),
              fluidRow(
-               column(12,
-                      DTOutput("tab_gen"))
+               column(10,
+                      DTOutput("tab_gen1")
+                      ),
+               
+               column(2,
+                      div(class = "text_dwld",
+                          pickerInput(
+                            inputId = "dataSwitch4",
+                            label = "Select Dataset", 
+                            choices = c("Plasmodium (single cell)", 
+                                        "Human organs (bulk)", 
+                                        "COVID cell line (bulk)")
+                            )
+                          ),
+                      ),
+               )
              )
-           )
-  ),
+           ),
   
   tabPanel(span("Upload your own data", style = "font-size : 20px; font-weight: bold "),
            fluidPage( 
              
-             withSpinner(plotlyOutput("Component4"), type = 2, color = "#c00000", color.background = "white"),
+             conditionalPanel(
+               condition = "input.Radio6 == 'Normalized counts'",
+               withSpinner(plotlyOutput("Component4a"), type = 2, color = "#c00000", color.background = "white"),
+             ),
+             
+             conditionalPanel(
+               condition = "input.Radio6 == 'Raw counts' & input.method == 'SPOT'",
+               plotlyOutput("Component4b"),
+             ),
+             
+             conditionalPanel(
+               condition = "input.Radio6 == 'Raw counts' & input.method == 'DEA'",
+               plotlyOutput("Component4ba"),
+             ),
              
              hr(),
              
              fluidRow(
                column(2,
+                      radioGroupButtons(
+                        inputId = "Radio6",
+                        label = "Choose count format",
+                        choices = c("Normalized counts", 
+                                    "Raw counts"),
+                        individual = TRUE,
+                        checkIcon = list(
+                          yes = tags$i(class = "fa fa-circle", 
+                                       style = "color: #c00000"),
+                          no = tags$i(class = "fa fa-circle-o", 
+                                      style = "color: #c00000"))
+                      ),
                       
-                      fileInput('file1', 'Choose file to upload',
+                      fileInput('file1', 'Choose your dataset',
                                 accept = c('text/csv','text/comma-separated-values',
                                            'text/tab-separated-values', 'text/plain',
                                            '.csv','.tsv', 'text/xlsx','.xlsx'),
-                                ),
-                      
                       ),
-               uiOutput("reactive_sliders"),
+                      
+                      conditionalPanel(
+                        condition = "input.Radio6 == 'Raw counts'",
+                      radioGroupButtons(
+                        inputId = "method",
+                        label = "Choose method",
+                        choices = c("SPOT", "DEA"),
+                        individual = TRUE,
+                        checkIcon = list(
+                          yes = tags$i(class = "fa fa-circle", 
+                                       style = "color: #c00000"),
+                          no = tags$i(class = "fa fa-circle-o", 
+                                      style = "color: #c00000"))
+                      )),
+                      
+                      conditionalPanel(
+                        condition = "input.method == 'DEA'",
+                        radioGroupButtons(
+                          inputId = "algorithm_upload",
+                          label = "Choose algorithm",
+                          choices = c("Wilcox", "MAST", "DESeq2"),
+                          individual = TRUE,
+                          checkIcon = list(
+                            yes = tags$i(class = "fa fa-circle", 
+                                         style = "color: #c00000"),
+                            no = tags$i(class = "fa fa-circle-o", 
+                                        style = "color: #c00000"))
+                        ))
+                  
+                     ),
+               
+               uiOutput("reactive_sliders4a"),
+               
                column(2,
+                      
+                      conditionalPanel(
+                        condition = "input.method == 'DEA'",
+                        div(class = "button_DEA",
+                            actionBttn("action_DEA_upload", label = "Start DEA!", icon = NULL, style = "material-flat", color = "danger",
+                                       size = "lg", block = FALSE, no_outline = TRUE
+                            )),
+                        ),
+                      
                       radioGroupButtons(
                         inputId = "Radio5",
                         label = "Alter Visualization",
@@ -286,7 +372,11 @@ ui <- navbarPage(
                           no = tags$i(class = "fa fa-circle-o", 
                                       style = "color: #c00000"))
                       ),
-                      downloadButton('downloadData3', 'Download table as .xlsx')
+                      div(class = "text_dwld",
+                          "Download:"
+                      ),
+                      downloadButton('downloadData3', 'as .xlsx'),
+                      downloadButton('downloadData6', 'as .csv')
                )
              ))),
   
@@ -318,11 +408,12 @@ ui <- navbarPage(
                     )
              ),
              column(5, 
-                    div(class= "pic",
-                    img(src='Figure1.PNG', align = "bottom", height = 420)
+                     div(class= "pic",
+                         #img(src='Figure1.PNG', align = "bottom", height = 420)
+                         HTML('<iframe width="800" height="430" src="//www.youtube.com/embed/3c38RN-ef5Y" frameborder="20" allowfullscreen></iframe>')
+                         )
                     )
-             )
-           ),
+             ),
            fluidRow(
              
              column(10, 
@@ -340,14 +431,19 @@ ui <- navbarPage(
                         "Data was obtained from: "
                     ),
                     div(class = "text_about",
-                        "Howick, V.M. u. a., 2019. The Malaria Cell Atlas: Single parasite transcriptomes across the complete Plasmodium life cycle. Science, 365(6455), S.774.",
+                        "Howick, V.M. et al., 2019. The Malaria Cell Atlas: Single parasite transcriptomes across the complete Plasmodium life cycle. Science, 365(6455), S.774.",
                         tags$a(href="https://science.sciencemag.org/content/365/6455/eaaw2619", "Paper"),
                         tags$a(href="https://github.com/vhowick/MalariaCellAtlas/tree/master/Expression_Matrices/Smartseq2", "Data")
                     ), 
                     div(class = "text_about",
-                        "Cardoso-Moreira, M. u. a., 2019. Gene expression across mammalian organ development. Nature, 571(7766), S.505-509.",
+                        "Cardoso-Moreira, M. et al., 2019. Gene expression across mammalian organ development. Nature, 571(7766), S.505-509.",
                         tags$a(href="https://www.nature.com/articles/s41586-019-1338-5", "Paper"),
                         tags$a(href="https://www.ebi.ac.uk/arrayexpress/experiments/E-MTAB-6814/", "Data")
+                    ),
+                    div(class = "text_about",
+                         "Wyler E., et al., 2021. Transcriptomic profiling of SARS-CoV-2 infected human cell lines identifies HSP90 as target for COVID-19 therapy. iScience, 24(3), 102151",
+                         tags$a(href="https://www.sciencedirect.com/science/article/pii/S258900422100119X?via%3Dihub#undfig1", "Paper"),
+                         tags$a(href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE148729", "Data")
                     )
                     
                     

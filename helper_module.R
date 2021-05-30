@@ -16,6 +16,7 @@ usher <- function(data){
 
 #create sliders with columnsname as label
 create_sliders <- function(data){
+  
   sliders = lapply(data, FUN = function(i){
     sliderTextInput(
       inputId = i,
@@ -24,6 +25,7 @@ create_sliders <- function(data){
       grid = TRUE,
       selected = 0
       )
+    
     })
   boarder = usher(data)
   list(column(2, sliders[boarder[1]:boarder[2]]),
@@ -145,7 +147,7 @@ sc_dotplot <- function(data){
    fig <- fig %>% plotly::layout(showlegend = F)
 }
 
-#create unicolor boxplot 
+#create unicolor barplot 
 bulk_dotplot <- function(data, ytitle = "Genes", xtitle = "Variables", label = data$Ensembl_ID, boarder1 = 2, boarder2 = 4){
   data$Ensembl_ID = paste(0:9, label)
   data = melt(data[,c(1:boarder1, boarder2:ncol(data))])
@@ -180,13 +182,13 @@ spot <- function(data, Variables, columns = c(1:ncol(data)), preamble = c(1:2), 
       mean_wanted_cols = 0
     }else if(length(which(Variables == 0)) == 1){
       mean_unwanted_cols = data1[, which(Variables == 0)]
-      mean_wanted_cols = rowSums(Variables[which(Variables > 0)] * data1[, which(Variables > 0)])/sum(Variables[which(Variables > 0)])
+      mean_wanted_cols = data1[, which(Variables > 0)] %*% Variables[which(Variables > 0)]/sum(Variables[which(Variables > 0)])
     }else if(length(which(Variables == 0)) == 0){
       mean_unwanted_cols = 0
-      mean_wanted_cols = rowSums(Variables[which(Variables > 0)] * data1[, which(Variables > 0)])/sum(Variables[which(Variables > 0)])
+      mean_wanted_cols = data1[, which(Variables > 0)] %*% Variables[which(Variables > 0)]/sum(Variables[which(Variables > 0)])
     }else{
       mean_unwanted_cols = rowMeans(data1[, which(Variables == 0)])
-      mean_wanted_cols = rowSums(data1[, which(Variables > 0)] * Variables[which(Variables > 0)])/sum(Variables[which(Variables > 0)])
+      mean_wanted_cols = data1[, which(Variables > 0)] %*% Variables[which(Variables > 0)]/sum(Variables[which(Variables > 0)])
     }
     spot_Score = (mean_wanted_cols - mean_unwanted_cols)*(1 - mean_unwanted_cols)
     merged_df <- cbind(data[,preamble], spot_Score, data[,columns], data[,ncol(data)])
@@ -200,7 +202,7 @@ correlation <- function(data, Variables, columns = c(1:ncol(data)), preamble = c
   
   data1 = as.matrix(scale(data[,columns]))
   data1[which(data1 > 4)] = 4
-  Correlation = cor(t(data1), 2*Variables)
+  Correlation = cor(t(data1), Variables)
   merged_df <- cbind(data[,preamble], Correlation, data[,columns], data[,ncol(data)])
   merged_df_sorted <- merged_df %>% dplyr::arrange(desc(Correlation))
   top_df <<- merged_df_sorted[1:Candidate_Number,]
